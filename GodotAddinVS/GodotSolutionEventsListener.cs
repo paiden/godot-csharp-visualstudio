@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using EnvDTE;
 using GodotAddinVS.Debugging;
 using GodotAddinVS.GodotMessaging;
@@ -65,7 +66,12 @@ namespace GodotAddinVS
             return guidList.ToArray();
         }
 
-        private static bool IsGodotProject(IVsHierarchy hierarchy)
+        private static bool IsGodotProject(IVsHierarchy hierarchy, Project dteProject)
+        {
+            return IsSdkStyleGodotProject(dteProject) || IsNonSkdStyleGodotProject(hierarchy);
+        }
+
+        private static bool IsNonSkdStyleGodotProject(IVsHierarchy hierarchy)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             return hierarchy is IVsAggregatableProject aggregatableProject &&
@@ -74,11 +80,37 @@ namespace GodotAddinVS
                        .Any(g => g == typeof(GodotFlavoredProjectFactory).GUID);
         }
 
+        private static bool IsSdkStyleGodotProject(Project dteProject)
+        {
+            try
+            {
+                if (dteProject == null)
+                {
+                    return false;
+                }
+
+                ThreadHelper.ThrowIfNotOnUIThread();
+
+                var doc = new XmlDocument();
+                doc.Load(dteProject.FullName);
+
+                var sdkAttribute = doc.DocumentElement?.Attributes["Sdk"];
+
+                return sdkAttribute != null && sdkAttribute.Value.ToLowerInvariant().StartsWith("godot.net.sdk");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public override int OnAfterOpenProject(IVsHierarchy hierarchy, int added)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (!IsGodotProject(hierarchy))
+            var dteProject = TryGetDTEProject(hierarchy);
+
+            if (!IsGodotProject(hierarchy, dteProject))
                 return 0;
 
             lock (RegisterLock)
@@ -86,7 +118,7 @@ namespace GodotAddinVS
                 if (_registered)
                     return 0;
 
-                _godotProjectDir = EvalGodotProjectDir(hierarchy);
+                _godotProjectDir = EvalGodotProjectDir(dteProject);
 
                 DebuggerEvents = ServiceProvider.GetService<DTE>().Events.DebuggerEvents;
                 DebuggerEvents.OnEnterDesignMode += DebuggerEvents_OnEnterDesignMode;
@@ -164,16 +196,16 @@ namespace GodotAddinVS
             }
         }
 
-        private string EvalGodotProjectDir(IVsHierarchy hierarchy)
+        private string EvalGodotProjectDir(Project dteProject)
         {
             try
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                var dteProject = GetDTEProject(hierarchy);
                 if (dteProject == null)
                 {
                     return SolutionDir;
                 }
+
+                ThreadHelper.ThrowIfNotOnUIThread();
 
                 var evalProj = new Microsoft.Build.Evaluation.Project(dteProject.FullName);
                 var evaluated = evalProj.GetPropertyValue("GodotProjectDir");
@@ -185,16 +217,23 @@ namespace GodotAddinVS
             }
         }
 
-        private static EnvDTE.Project GetDTEProject(IVsHierarchy hierarchy)
+        private static EnvDTE.Project TryGetDTEProject(IVsHierarchy hierarchy)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
 
-            var itemid = VSConstants.VSITEMID_ROOT;
+                var itemid = VSConstants.VSITEMID_ROOT;
 
-            object objProj;
-            hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_ExtObject, out objProj);
+                object objProj;
+                hierarchy.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_ExtObject, out objProj);
 
-            return objProj as EnvDTE.Project;
+                return objProj as EnvDTE.Project;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

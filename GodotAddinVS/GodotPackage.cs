@@ -1,13 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using GodotCompletionProviders;
-using GodotTools.IdeMessaging;
-using GodotTools.IdeMessaging.Requests;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using ILogger = GodotCompletionProviders.ILogger;
 using Task = System.Threading.Tasks.Task;
 
 namespace GodotAddinVS
@@ -36,6 +32,7 @@ namespace GodotAddinVS
     [ProvideOptionPage(typeof(GeneralOptionsPage),
         "Godot", "General", 0, 0, true)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)] // Needed for Solutions that only contain SDK Style projects (these load differently)
     public sealed class GodotPackage : AsyncPackage
     {
         /// <summary>
