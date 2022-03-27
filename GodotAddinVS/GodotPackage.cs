@@ -71,6 +71,8 @@ namespace GodotAddinVS
 
             var completionProviderContext = new GodotVsProviderContext(this);
             BaseCompletionProvider.Context = completionProviderContext;
+
+            await Commands.SdkStylePlayCommand.InitializeAsync(this);
         }
 
         internal GodotSolutionEventsListener GodotSolutionEventsListener { get; private set; }

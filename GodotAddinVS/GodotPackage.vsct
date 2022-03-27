@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <CommandTable language="en-us" xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
   <Commands package="guidDebugTargetHandlerCmdSet">
     <Buttons>
       <Button guid="guidGodotDebugTargetCmdSet" id="PlayInEditorId" priority="0x1000" type="Button">
-        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup"/>
+        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
@@ -13,7 +13,7 @@
       </Button>
 
       <Button guid="guidGodotDebugTargetCmdSet" id="LaunchId" priority="0x1000" type="Button">
-        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup"/>
+        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
@@ -23,7 +23,7 @@
       </Button>
 
       <Button guid="guidGodotDebugTargetCmdSet" id="AttachId" priority="0x1000" type="Button">
-        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup"/>
+        <Parent guid="guidDebugTargetHandlerCmdSet" id="DebugTargetMenuControllerGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
@@ -49,5 +49,119 @@
       <IDSymbol name="LaunchId" value="0x8193" />
       <IDSymbol name="AttachId" value="0x8194" />
     </GuidSymbol>
+
+    <GuidSymbol value="{4d8e3995-f0d4-4a7d-a702-c92b59de5875}" name="guidGodotPackageCmdSet">
+      <IDSymbol value="4128" name="MyMenuGroup" />
+      <IDSymbol value="7128" name="menuIdSubMenu" />
+      <IDSymbol value="256" name="cmdidSdkStylePlayCommand" />
+
+
+      <IDSymbol name="Toolbar" value="0x3000" />
+      <IDSymbol name="ToolbarGroup" value="0x3050" />
+
+      <IDSymbol name="TestMenuController" value="0x1300" />
+      <IDSymbol name="TestMenuControllerGroup" value="0x1060" />
+      <IDSymbol name="cmdidMCItem1" value="0x0130" />
+      <IDSymbol name="cmdidMCItem2" value="0x0131" />
+      <IDSymbol name="cmdidMCItem3" value="0x0132" />
+      <IDSymbol value="12369" name="cmdidCommand1" />
+    </GuidSymbol>
+
+    <GuidSymbol value="{6433152c-1bd1-449e-8568-df582af4f265}" name="guidImages">
+      <IDSymbol name="godot" value="1" />
+      <IDSymbol name="play" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+
+    <GuidSymbol value="{3d0ccc47-a2cb-406f-9fa1-d4c0fc538585}" name="guidImages1">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
   </Symbols>
+
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidGodotPackage">
+    <Groups>
+      <Group guid="guidGodotPackageCmdSet" id="MyMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+      <Group guid="guidGodotPackageCmdSet" id="ToolbarGroup" priority="0x0000">
+        <Parent guid="guidGodotPackageCmdSet" id="Toolbar" />
+      </Group>
+      <Group guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" priority="0x000">
+        <Parent guid="guidGodotPackageCmdSet" id="TestMenuController" />
+      </Group>
+    </Groups>
+    <Bitmaps>
+      <Bitmap guid="guidImages" href="Commands\Resources\SdkStylePlayCommand.png" usedList="godot, play, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages1" href="Commands\Resources\Command1.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+    </Bitmaps>
+    <Buttons>
+      <!-- Menu Controller Buttons -->
+      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem1" priority="0x0000" type="Button">
+        <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
+        <Icon guid="guidImages" id="play" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>MC Item 1</ButtonText>
+          <CommandName>MC Item 1</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem2" priority="0x0100" type="Button">
+        <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
+        <Icon guid="guidImages" id="bmpPicSearch" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>MC Item 2</ButtonText>
+          <CommandName>MC Item 2</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem3" priority="0x0200" type="Button">
+        <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
+        <Icon guid="guidImages" id="bmpPicX" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>MC Item 3</ButtonText>
+          <CommandName>MC Item 3</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidGodotPackageCmdSet" id="cmdidSdkStylePlayCommand" priority="0x0100" type="Button">
+        <Parent guid="guidGodotPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages1" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Debug Play Command</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+    <Menus>
+      <!-- The Addin toolbar -->
+      <Menu guid="guidGodotPackageCmdSet" id="Toolbar" type="Toolbar">
+        <CommandFlag>DefaultDocked</CommandFlag>
+        <Strings>
+          <ButtonText>Test Toolbar</ButtonText>
+          <CommandName>Test Toolbar</CommandName>
+        </Strings>
+      </Menu>
+      <!-- Split Button Menu -->
+      <Menu guid="guidGodotPackageCmdSet" id="TestMenuController" priority="0x0100" type="MenuController">
+        <Parent guid="guidGodotPackageCmdSet" id="ToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <CommandFlag>TextIsAnchorCommand</CommandFlag>
+        <Strings>
+          <ButtonText>Test Menu Controller</ButtonText>
+          <CommandName>Test Menu Controller</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+  </Commands>
 </CommandTable>

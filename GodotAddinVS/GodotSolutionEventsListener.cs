@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using EnvDTE;
+using GodotAddinVS.Commands;
 using GodotAddinVS.Debugging;
 using GodotAddinVS.GodotMessaging;
 using GodotTools.IdeMessaging;
@@ -112,6 +113,11 @@ namespace GodotAddinVS
 
             if (!IsGodotProject(hierarchy, dteProject))
                 return 0;
+
+            if (IsSdkStyleGodotProject(dteProject))
+            {
+                SdkStylePlayCommand.SdkStyleProject = dteProject;
+            }
 
             lock (RegisterLock)
             {

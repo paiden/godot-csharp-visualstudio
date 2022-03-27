@@ -1,11 +1,12 @@
+//using Mono.Debugging.VisualStudio;
+using System;
+using System.Net;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
 using Mono.Debugging.Soft;
 using Mono.Debugging.VisualStudio;
-using System;
-using System.Net;
-using System.Runtime.InteropServices;
 
 namespace GodotAddinVS.Debugging
 {
@@ -100,9 +101,9 @@ namespace GodotAddinVS.Debugging
             var random = new Random(DateTime.Now.Millisecond);
             var port = 8800 + random.Next(0, 100);
 
-            var startArgs = new SoftDebuggerListenArgs(_baseProject.Name, IPAddress.Loopback, port) {MaxConnectionAttempts = 3};
+            var startArgs = new SoftDebuggerListenArgs(_baseProject.Name, IPAddress.Loopback, port) { MaxConnectionAttempts = 3 };
 
-            var startInfo = new GodotStartInfo(startArgs, null, _baseProject) {WorkingDirectory = GodotPackage.Instance.GodotSolutionEventsListener?.SolutionDir};
+            var startInfo = new GodotStartInfo(startArgs, null, _baseProject) { WorkingDirectory = GodotPackage.Instance.GodotSolutionEventsListener?.SolutionDir };
             var session = new GodotDebuggerSession();
 
             var launcher = new MonoDebuggerLauncher(new Progress<string>());
