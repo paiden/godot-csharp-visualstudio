@@ -20,17 +20,23 @@ namespace GodotAddinVS.Debugging
         private bool _attached;
         private NetworkStream _godotRemoteDebuggerStream;
         private Process _process;
+        private ExecutionType? _explicitExecutionType;
+
+        public GodotDebuggerSession(ExecutionType? explicitExectionType = null)
+        {
+            _explicitExecutionType = explicitExectionType;
+        }
 
         // TODO: Unused. Find a way to trigger this.
         public void SendReloadScripts()
         {
-            var executionType = GodotDebugTargetSelection.Instance.CurrentDebugTarget.ExecutionType;
+            var executionType = _explicitExecutionType ?? GodotDebugTargetSelection.Instance.CurrentDebugTarget.ExecutionType;
 
             switch (executionType)
             {
                 case ExecutionType.Launch:
                     GodotVariantEncoder.Encode(
-                        new List<GodotVariant> {"reload_scripts"},
+                        new List<GodotVariant> { "reload_scripts" },
                         _godotRemoteDebuggerStream
                     );
                     _godotRemoteDebuggerStream.Flush();
@@ -78,109 +84,109 @@ namespace GodotAddinVS.Debugging
         {
             var godotStartInfo = (GodotStartInfo)startInfo;
 
-            var executionType = GodotDebugTargetSelection.Instance.CurrentDebugTarget.ExecutionType;
+            var executionType = _explicitExecutionType ?? GodotDebugTargetSelection.Instance.CurrentDebugTarget.ExecutionType;
 
             switch (executionType)
             {
                 case ExecutionType.PlayInEditor:
-                {
-                    _attached = false;
-                    StartListening(godotStartInfo, out var assignedDebugPort);
-
-                    var godotMessagingClient =
-                        GodotPackage.Instance.GodotSolutionEventsListener?.GodotMessagingClient;
-
-                    if (godotMessagingClient == null || !godotMessagingClient.IsConnected)
                     {
-                        EndSessionWithError("Play Error", "No Godot editor instance connected");
-                        return;
-                    }
+                        _attached = false;
+                        StartListening(godotStartInfo, out var assignedDebugPort);
 
-                    const string host = "127.0.0.1";
+                        var godotMessagingClient =
+                            GodotPackage.Instance.GodotSolutionEventsListener?.GodotMessagingClient;
 
-                    var playRequest = new DebugPlayRequest
-                    {
-                        DebuggerHost = host,
-                        DebuggerPort = assignedDebugPort,
-                        BuildBeforePlaying = false
-                    };
-
-                    _ = godotMessagingClient.SendRequest<DebugPlayResponse>(playRequest)
-                        .ContinueWith(t =>
+                        if (godotMessagingClient == null || !godotMessagingClient.IsConnected)
                         {
-                            if (t.Result.Status != MessageStatus.Ok)
-                                EndSessionWithError("Play Error", $"Received Play response with status: {MessageStatus.Ok}");
-                        }, TaskScheduler.Default);
+                            EndSessionWithError("Play Error", "No Godot editor instance connected");
+                            return;
+                        }
 
-                    // TODO: Read the editor player stdout and stderr somehow
+                        const string host = "127.0.0.1";
 
-                    break;
-                }
+                        var playRequest = new DebugPlayRequest
+                        {
+                            DebuggerHost = host,
+                            DebuggerPort = assignedDebugPort,
+                            BuildBeforePlaying = false
+                        };
+
+                        _ = godotMessagingClient.SendRequest<DebugPlayResponse>(playRequest)
+                            .ContinueWith(t =>
+                            {
+                                if (t.Result.Status != MessageStatus.Ok)
+                                    EndSessionWithError("Play Error", $"Received Play response with status: {MessageStatus.Ok}");
+                            }, TaskScheduler.Default);
+
+                        // TODO: Read the editor player stdout and stderr somehow
+
+                        break;
+                    }
                 case ExecutionType.Launch:
-                {
-                    _attached = false;
-                    StartListening(godotStartInfo, out var assignedDebugPort);
-
-                    // Listener to replace the Godot editor remote debugger.
-                    // We use it to notify the game when assemblies should be reloaded.
-                    var remoteDebugListener = new TcpListener(IPAddress.Any, 0);
-                    remoteDebugListener.Start();
-                    _ = remoteDebugListener.AcceptTcpClientAsync()
-                        .ContinueWith(OnGodotRemoteDebuggerConnectedAsync, TaskScheduler.Default);
-
-                    string workingDir = startInfo.WorkingDirectory;
-                    const string host = "127.0.0.1";
-                    int remoteDebugPort = ((IPEndPoint)remoteDebugListener.LocalEndpoint).Port;
-
-                    // Launch Godot to run the game and connect to our remote debugger
-
-                    var processStartInfo = new ProcessStartInfo(GetGodotExecutablePath())
                     {
-                        Arguments = $"--path {workingDir} --remote-debug {host}:{remoteDebugPort}", // TODO: Doesn't work with 4.0dev. Should be tcp://host:port which doesn't work in 3.2...
-                        WorkingDirectory = workingDir,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
+                        _attached = false;
+                        StartListening(godotStartInfo, out var assignedDebugPort);
 
-                    // Tells Godot to connect to the mono debugger we just started
-                    processStartInfo.EnvironmentVariables["GODOT_MONO_DEBUGGER_AGENT"] =
-                        "--debugger-agent=transport=dt_socket" +
-                        $",address={host}:{assignedDebugPort}" +
-                        ",server=n";
+                        // Listener to replace the Godot editor remote debugger.
+                        // We use it to notify the game when assemblies should be reloaded.
+                        var remoteDebugListener = new TcpListener(IPAddress.Any, 0);
+                        remoteDebugListener.Start();
+                        _ = remoteDebugListener.AcceptTcpClientAsync()
+                            .ContinueWith(OnGodotRemoteDebuggerConnectedAsync, TaskScheduler.Default);
 
-                    _process = new Process {StartInfo = processStartInfo};
+                        string workingDir = startInfo.WorkingDirectory;
+                        const string host = "127.0.0.1";
+                        int remoteDebugPort = ((IPEndPoint)remoteDebugListener.LocalEndpoint).Port;
 
-                    _process.OutputDataReceived += (sendingProcess, outLine) => OutputData(outLine.Data, false);
-                    _process.ErrorDataReceived += (sendingProcess, outLine) => OutputData(outLine.Data, true);
+                        // Launch Godot to run the game and connect to our remote debugger
 
-                    if (!_process.Start())
-                    {
-                        EndSessionWithError("Launch Error", "Failed to start Godot process");
-                        return;
+                        var processStartInfo = new ProcessStartInfo(GetGodotExecutablePath())
+                        {
+                            Arguments = $"--path {workingDir} --remote-debug {host}:{remoteDebugPort}", // TODO: Doesn't work with 4.0dev. Should be tcp://host:port which doesn't work in 3.2...
+                            WorkingDirectory = workingDir,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        // Tells Godot to connect to the mono debugger we just started
+                        processStartInfo.EnvironmentVariables["GODOT_MONO_DEBUGGER_AGENT"] =
+                            "--debugger-agent=transport=dt_socket" +
+                            $",address={host}:{assignedDebugPort}" +
+                            ",server=n";
+
+                        _process = new Process { StartInfo = processStartInfo };
+
+                        _process.OutputDataReceived += (sendingProcess, outLine) => OutputData(outLine.Data, false);
+                        _process.ErrorDataReceived += (sendingProcess, outLine) => OutputData(outLine.Data, true);
+
+                        if (!_process.Start())
+                        {
+                            EndSessionWithError("Launch Error", "Failed to start Godot process");
+                            return;
+                        }
+
+                        _process.BeginOutputReadLine();
+
+                        if (_process.HasExited)
+                        {
+                            EndSessionWithError("Launch Error", $"Godot process exited with code: {_process.ExitCode}");
+                            return;
+                        }
+
+                        _process.Exited += (sender, args) => EndSession();
+
+                        OnDebuggerOutput(false, $"Godot PID:{_process.Id}{Environment.NewLine}");
+
+                        break;
                     }
-
-                    _process.BeginOutputReadLine();
-
-                    if (_process.HasExited)
-                    {
-                        EndSessionWithError("Launch Error", $"Godot process exited with code: {_process.ExitCode}");
-                        return;
-                    }
-
-                    _process.Exited += (sender, args) => EndSession();
-
-                    OnDebuggerOutput(false, $"Godot PID:{_process.Id}{Environment.NewLine}");
-
-                    break;
-                }
                 case ExecutionType.Attach:
-                {
-                    _attached = true;
-                    StartConnecting(godotStartInfo);
-                    break;
-                }
+                    {
+                        _attached = true;
+                        StartConnecting(godotStartInfo);
+                        break;
+                    }
                 default:
                     throw new ArgumentOutOfRangeException(executionType.ToString());
             }

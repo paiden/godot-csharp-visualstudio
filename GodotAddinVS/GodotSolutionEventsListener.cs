@@ -23,6 +23,8 @@ namespace GodotAddinVS
 
         private string _godotProjectDir;
 
+        public string GodotProjectDir => _godotProjectDir;
+
         private DebuggerEvents DebuggerEvents { get; set; }
 
         private IServiceContainer ServiceContainer => (IServiceContainer)ServiceProvider;
@@ -116,7 +118,7 @@ namespace GodotAddinVS
 
             if (IsSdkStyleGodotProject(dteProject))
             {
-                SdkStylePlayCommand.SdkStyleProject = dteProject;
+                SdkStyleLaunchMonoDebuggerCommand.SdkStyleProject = dteProject;
             }
 
             lock (RegisterLock)

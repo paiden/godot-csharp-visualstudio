@@ -61,9 +61,9 @@
 
       <IDSymbol name="TestMenuController" value="0x1300" />
       <IDSymbol name="TestMenuControllerGroup" value="0x1060" />
-      <IDSymbol name="cmdidMCItem1" value="0x0130" />
-      <IDSymbol name="cmdidMCItem2" value="0x0131" />
-      <IDSymbol name="cmdidMCItem3" value="0x0132" />
+      <IDSymbol name="cmdidPlayInEditor" value="0x0130" />
+      <IDSymbol name="cmdidLaunch" value="0x0131" />
+      <IDSymbol name="cmdidAttach" value="0x0132" />
       <IDSymbol value="12369" name="cmdidCommand1" />
     </GuidSymbol>
 
@@ -107,31 +107,31 @@
     </Bitmaps>
     <Buttons>
       <!-- Menu Controller Buttons -->
-      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem1" priority="0x0000" type="Button">
+      <Button guid="guidGodotPackageCmdSet" id="cmdidPlayInEditor" priority="0x0000" type="Button">
         <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
-        <Icon guid="guidImages" id="play" />
+        <Icon guid="guidImages" id="godot" />
         <CommandFlag>IconAndText</CommandFlag>
         <Strings>
-          <ButtonText>MC Item 1</ButtonText>
-          <CommandName>MC Item 1</CommandName>
+          <ButtonText>Play in Editor</ButtonText>
+          <CommandName>Play in Editor</CommandName>
         </Strings>
       </Button>
-      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem2" priority="0x0100" type="Button">
+      <Button guid="guidGodotPackageCmdSet" id="cmdidLaunch" priority="0x0100" type="Button">
         <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
-        <Icon guid="guidImages" id="bmpPicSearch" />
+        <Icon guid="guidImages" id="godot" />
         <CommandFlag>IconAndText</CommandFlag>
         <Strings>
-          <ButtonText>MC Item 2</ButtonText>
-          <CommandName>MC Item 2</CommandName>
+          <ButtonText>Launch</ButtonText>
+          <CommandName>Launch</CommandName>
         </Strings>
       </Button>
-      <Button guid="guidGodotPackageCmdSet" id="cmdidMCItem3" priority="0x0200" type="Button">
+      <Button guid="guidGodotPackageCmdSet" id="cmdidAttach" priority="0x0200" type="Button">
         <Parent guid="guidGodotPackageCmdSet" id="TestMenuControllerGroup" />
-        <Icon guid="guidImages" id="bmpPicX" />
+        <Icon guid="guidImages" id="godot" />
         <CommandFlag>IconAndText</CommandFlag>
         <Strings>
-          <ButtonText>MC Item 3</ButtonText>
-          <CommandName>MC Item 3</CommandName>
+          <ButtonText>Attach</ButtonText>
+          <CommandName>Attach</CommandName>
         </Strings>
       </Button>
       <Button guid="guidGodotPackageCmdSet" id="cmdidSdkStylePlayCommand" priority="0x0100" type="Button">
